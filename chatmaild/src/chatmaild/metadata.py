@@ -31,6 +31,16 @@ class Metadata:
     def get_metadata_dict(self, addr):
         return FileDict(self.vmail_dir / addr / "metadata.json")
 
+    def write_login_timestamp(self, addr, timestamp):
+        # day resolution is enough for timestamp
+        timestamp = int(timestamp) // 86400 * 86400
+        target_file = self.vmail_dir.joinpath(addr, "last-login")
+        try:
+            target_file.write_text(str(timestamp))
+        except FileNotFoundError:
+            target_file.parent.mkdir()
+            target_file.write_text(str(timestamp))
+
     def add_token_to_addr(self, addr, token):
         with self.get_metadata_dict(addr).modify() as data:
             tokens = data.setdefault(self.DEVICETOKEN_KEY, [])
@@ -117,9 +127,15 @@ def handle_dovecot_request(msg, transactions, notifier, metadata, iroh_relay=Non
             metadata.add_token_to_addr(addr, value)
         elif keyname[0] == "priv" and keyname[2] == "messagenew":
             notifier.new_message_for_addr(addr, metadata)
+        elif keyname[0] == "shared" and keyname[1] == "last-login":
+            logging.warning("last-login msg: %s" % (msg,))
+            addr = keyname[2]
+            timestamp = int(value)
+            metadata.write_login_timestamp(addr, timestamp)
         else:
             # Transaction failed.
             transactions[transaction_id]["res"] = "F\n"
+            logging.warning("transaction failed: %s" % (msg))
 
 
 class ThreadedUnixStreamServer(ThreadingMixIn, UnixStreamServer):
