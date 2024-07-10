@@ -3,6 +3,7 @@ import time
 
 import pytest
 import requests
+from chatmaild.delete_inactive_users import get_last_login_from_userdir
 from chatmaild.metadata import (
     Metadata,
     handle_dovecot_protocol,
@@ -88,17 +89,6 @@ def test_notifier_remove_without_set(metadata, testaddr):
     assert not metadata.get_tokens_for_addr(testaddr)
 
 
-def test_metadata_login_timestamp(metadata, testaddr):
-    timestamp = metadata.vmail_dir.joinpath(testaddr).mkdir()
-    metadata.write_login_timestamp(testaddr, timestamp=100000)
-    timestamp = metadata.vmail_dir.joinpath(testaddr, "last-login").read_text()
-    assert int(timestamp) == 86400
-
-    metadata.write_login_timestamp(testaddr, timestamp=200000)
-    timestamp = metadata.vmail_dir.joinpath(testaddr, "last-login").read_text()
-    assert int(timestamp) == 86400 * 2
-
-
 def test_handle_dovecot_request_lookup_fails(notifier, metadata, testaddr):
     res = handle_dovecot_request(
         f"Lpriv/123/chatmail\t{testaddr}", {}, notifier, metadata
@@ -160,7 +150,7 @@ def test_handle_dovecot_request_last_login(notifier, metadata, testaddr, token):
     res = handle_dovecot_request(msg, transactions, notifier, metadata)
     assert not res
     assert len(transactions) == 1
-    read_timestamp = int(userdir.joinpath("last-login").read_text())
+    read_timestamp = get_last_login_from_userdir(userdir)
     assert read_timestamp == timestamp // 86400 * 86400
 
     msg = f"C{tx}"
