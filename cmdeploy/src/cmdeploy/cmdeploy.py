@@ -313,7 +313,6 @@ def main(args=None):
         if res is None:
             res = 0
         return res
-
     except KeyboardInterrupt:
         out.red("KeyboardInterrupt")
         sys.exit(130)

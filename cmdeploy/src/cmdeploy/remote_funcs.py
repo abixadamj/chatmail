@@ -92,21 +92,36 @@ def check_zonefile(zonefile):
     return diff
 
 
+## Function Execution server
+
+
+def _run_loop(channel):
+    while 1:
+        cmd = channel.receive()
+        if cmd is None:
+            break
+        channel.send(_handle_one_request(cmd))
+
+
+def _handle_one_request(cmd):
+    func_name, kwargs = cmd
+    try:
+        res = globals()[func_name](**kwargs)
+    except:
+        data = traceback.format_exc()
+        return ("error", data)
+    else:
+        return ("finish", res)
+
+
 # check if this module is executed remotely
 # and setup a simple serialized function-execution loop
 
 if __name__ == "__channelexec__":
-    channel = channel  # noqa
 
     def print(item):
         channel.send(("log", item))
 
-    while 1:
-        func_name, kwargs = channel.receive()
-        try:
-            res = globals()[func_name](**kwargs)
-        except:
-            data = traceback.format_exc()
-            channel.send(("error", data))
-        else:
-            channel.send(("finish", res))
+    channel = channel  # noqa
+
+    _run_loop(channel)
