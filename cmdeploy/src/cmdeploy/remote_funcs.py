@@ -69,6 +69,7 @@ def query_dns(typ, domain):
     print(res)
     if res:
         return res.split("\n")[0]
+    return ""
 
 
 def check_zonefile(zonefile):
