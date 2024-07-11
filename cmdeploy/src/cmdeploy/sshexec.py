@@ -3,8 +3,13 @@ import sys
 import execnet
 
 
+class FuncError(Exception):
+    pass
+
+
 class SSHExec:
     RemoteError = execnet.RemoteError
+    FuncError = FuncError
 
     def __init__(self, host, remote_funcs, verbose=False, python="python3", timeout=60):
         self.gateway = execnet.makegateway(f"ssh=root@{host}//python={python}")
@@ -20,6 +25,8 @@ class SSHExec:
                 log_callback(data)
             elif code == "finish":
                 return data
+            elif code == "error":
+                raise self.FuncError(data)
 
     def logged(self, call, kwargs):
         def log_progress(data):

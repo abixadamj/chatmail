@@ -11,6 +11,7 @@ All functions of this module
 """
 
 import re
+import traceback
 from subprocess import CalledProcessError, check_output
 
 
@@ -31,6 +32,7 @@ def get_systemd_running():
 
 def perform_initial_checks(mail_domain):
     """Collecting initial DNS zone content."""
+    assert mail_domain
     A = query_dns("A", mail_domain)
     AAAA = query_dns("AAAA", mail_domain)
     MTA_STS = query_dns("CNAME", f"mta-sts.{mail_domain}")
@@ -101,5 +103,10 @@ if __name__ == "__channelexec__":
     while 1:
         func_name, kwargs = channel.receive()  # noqa
         kwargs = kwargs if kwargs else {}
-        res = globals()[func_name](**kwargs)  # noqa
-        channel.send(("finish", res))  # noqa
+        try:
+            res = globals()[func_name](**kwargs)  # noqa
+        except Exception:
+            data = traceback.format_exc()
+            channel.send(("error", data))  # noqa
+        else:
+            channel.send(("finish", res))  # noqa
