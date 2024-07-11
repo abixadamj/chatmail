@@ -309,10 +309,16 @@ def main(args=None):
             raise SystemExit(1)
 
     try:
-        res = args.func(args, out, **kwargs)
-        if res is None:
-            res = 0
-        return res
+        try:
+            res = args.func(args, out, **kwargs)
+            if res is None:
+                res = 0
+            return res
+        finally:
+            if ssh_exec_cache:
+                print("[ssh] *terminating*")
+                ssh_exec_cache[0]._group.terminate()
+                print("[ssh] *termination completed*")
     except KeyboardInterrupt:
         out.red("KeyboardInterrupt")
         sys.exit(130)
