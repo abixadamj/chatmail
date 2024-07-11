@@ -96,16 +96,17 @@ def check_zonefile(zonefile):
 # and setup a simple serialized function-execution loop
 
 if __name__ == "__channelexec__":
+    channel = channel  # noqa
 
     def print(item):
-        channel.send(("log", item))  # noqa
+        channel.send(("log", item))
 
     while 1:
-        func_name, kwargs = channel.receive()  # noqa
+        func_name, kwargs = channel.receive()
         try:
-            res = globals()[func_name](**kwargs)  # noqa
+            res = globals()[func_name](**kwargs)
         except:
             data = traceback.format_exc()
-            channel.send(("error", data))  # noqa
+            channel.send(("error", data))
         else:
-            channel.send(("finish", res))  # noqa
+            channel.send(("finish", res))
