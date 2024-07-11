@@ -77,7 +77,8 @@ jobs:
       - name: set DNS entries
         run: |
           ssh -o StrictHostKeyChecking=accept-new root@staging2.testrun.org chown opendkim:opendkim -R /etc/dkimkeys
-          cmdeploy dns --zonefile staging-generated.zone --verbose
+          cmdeploy dns --zonefile staging-generated.zone
+          echo "dns zone file operation done"
           cat staging-generated.zone >> .github/workflows/staging.testrun.org-default.zone
           cat .github/workflows/staging.testrun.org-default.zone
           scp .github/workflows/staging.testrun.org-default.zone root@ns.testrun.org:/etc/nsd/staging2.testrun.org.zone
