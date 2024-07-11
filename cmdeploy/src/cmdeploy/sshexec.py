@@ -18,6 +18,8 @@ class SSHExec:
         self.verbose = verbose
 
     def __call__(self, call, kwargs=None, log_callback=None):
+        if kwargs is None:
+            kwargs = {}
         self._remote_cmdloop_channel.send((call.__name__, kwargs))
         while 1:
             code, data = self._remote_cmdloop_channel.receive(timeout=self.timeout)

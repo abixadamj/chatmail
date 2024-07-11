@@ -55,7 +55,7 @@ def run_cmd(args, out):
     """Deploy chatmail services on the remote server."""
 
     remote_data = dns.get_initial_remote_data(args, out)
-    if not remote_data:
+    if not dns.check_initial_remote_data(remote_data, print=out.red):
         return 1
 
     env = os.environ.copy()

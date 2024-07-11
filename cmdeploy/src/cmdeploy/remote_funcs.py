@@ -37,7 +37,7 @@ def perform_initial_checks(mail_domain):
     AAAA = query_dns("AAAA", mail_domain)
     MTA_STS = query_dns("CNAME", f"mta-sts.{mail_domain}")
 
-    res = dict(A=A, AAAA=AAAA, MTA_STS=MTA_STS)
+    res = dict(mail_domain=mail_domain, A=A, AAAA=AAAA, MTA_STS=MTA_STS)
     if not MTA_STS or (not A and not AAAA):
         return res
 
@@ -75,7 +75,7 @@ def query_dns(typ, domain):
 
 
 def check_zonefile(zonefile):
-    """Check all expected zone file entries."""
+    """Check expected zone file entries."""
     diff = []
 
     for zf_line in zonefile.splitlines():
@@ -102,10 +102,9 @@ if __name__ == "__channelexec__":
 
     while 1:
         func_name, kwargs = channel.receive()  # noqa
-        kwargs = kwargs if kwargs else {}
         try:
             res = globals()[func_name](**kwargs)  # noqa
-        except Exception:
+        except:
             data = traceback.format_exc()
             channel.send(("error", data))  # noqa
         else:
