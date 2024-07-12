@@ -17,6 +17,8 @@ after which the initially specified password is required for using them.
 
 To deploy chatmail on your own server, you must have set-up ssh authentication and need to use an ed25519 key, due to an [upstream bug in paramiko](https://github.com/paramiko/paramiko/issues/2191). You also need to add your private key to the local ssh-agent, because you can't type in your password during deployment.
 
+Also you have to set up some DNS records first.
+
 We use `chat.example.org` as the chatmail domain in the following steps. 
 Please substitute it with your own domain. 
 
@@ -36,6 +38,13 @@ Please substitute it with your own domain.
 
 3. Setup first DNS records for your chatmail domain, 
    according to the hints provided by `cmdeploy init`.
+
+   You need at least `A Record` and `TXT Record`, for example:
+   ```
+    chat.exaplne.com. 3600 IN      A       1.2.3.4
+    _mta-sts.chat.example.com.	3600	TXT	v=STSv1; id=202406241754
+   ```
+
    Verify that SSH root login works:
 
    ```
