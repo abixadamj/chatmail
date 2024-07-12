@@ -35,7 +35,28 @@ Please substitute it with your own domain.
    ```
 
 3. Setup first DNS records for your chatmail domain, 
-   according to the hints provided by `cmdeploy init`.
+   according to the hints provided by `cmdeploy dns`. Do it in your *DNS Zone Manager*. Below is just an example from one installation:
+
+```
+deltachat@adasiek-neon:~/chatmail$ scripts/cmdeploy init deltachat.jurkiewicz.chat
+created config file for deltachat.jurkiewicz.chat in chatmail.ini
+deltachat@adasiek-neon:~/chatmail$ scripts/cmdeploy dns
+[ssh] login to deltachat.jurkiewicz.chat
+Collecting initial DNS zone content.............
+[ssh] login to deltachat.jurkiewicz.chat
+Check expected zone file entries.........................................................
+Please set the following DNS entries at your DNS provider:
+
+deltachat.jurkiewicz.chat.                   MX 10 deltachat.jurkiewicz.chat.
+_submission._tcp.deltachat.jurkiewicz.chat.  SRV 0 1 587 deltachat.jurkiewicz.chat.
+_submissions._tcp.deltachat.jurkiewicz.chat. SRV 0 1 465 deltachat.jurkiewicz.chat.
+_imap._tcp.deltachat.jurkiewicz.chat.        SRV 0 1 143 deltachat.jurkiewicz.chat.
+_imaps._tcp.deltachat.jurkiewicz.chat.       SRV 0 1 993 deltachat.jurkiewicz.chat.
+deltachat.jurkiewicz.chat.                   CAA 128 issue "letsencrypt.org;accounturi=https://acme-v02.api.letsencrypt.org/acme/acct/1830013547"
+www.deltachat.jurkiewicz.chat.               CNAME deltachat.jurkiewicz.chat.
+opendkim._domainkey.deltachat.jurkiewicz.chat. TXT "v=DKIM1;k=rsa;p=;s=email;t=s"
+```
+
    Verify that SSH root login works:
 
    ```
