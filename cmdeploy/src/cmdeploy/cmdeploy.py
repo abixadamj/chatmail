@@ -283,16 +283,9 @@ def main(args=None):
     if not hasattr(args, "func"):
         return parser.parse_args(["-h"])
 
-    ssh_exec_cache = []
-
     def get_sshexec():
-        if not ssh_exec_cache:
-            print(f"[ssh] login to {args.config.mail_domain}")
-            ssh_exec = SSHExec(
-                args.config.mail_domain, remote_funcs, verbose=args.verbose
-            )
-            ssh_exec_cache.append(ssh_exec)
-        return ssh_exec_cache[0]
+        print(f"[ssh] login to {args.config.mail_domain}")
+        return SSHExec(args.config.mail_domain, remote_funcs, verbose=args.verbose)
 
     args.get_sshexec = get_sshexec
 
@@ -309,16 +302,10 @@ def main(args=None):
             raise SystemExit(1)
 
     try:
-        try:
-            res = args.func(args, out, **kwargs)
-            if res is None:
-                res = 0
-            return res
-        finally:
-            if ssh_exec_cache:
-                print("[ssh] *terminating*")
-                ssh_exec_cache[0]._group.terminate()
-                print("[ssh] *termination completed*")
+        res = args.func(args, out, **kwargs)
+        if res is None:
+            res = 0
+        return res
     except KeyboardInterrupt:
         out.red("KeyboardInterrupt")
         sys.exit(130)
